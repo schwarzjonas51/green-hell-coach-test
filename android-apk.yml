@@ -1,0 +1,42 @@
+name: Green Hell Coach APK
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'green-hell-coach-android.zip'
+      - '.github/workflows/android-apk.yml'
+permissions:
+  contents: read
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.10.2'
+      - name: Extract Android project
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f green-hell-coach-android.zip
+          mkdir -p original
+          unzip -q green-hell-coach-android.zip -d original
+          project_file="$(find original -type f -name settings.gradle -print -quit)"
+          test -n "$project_file" || { echo 'Android project not found in ZIP'; exit 1; }
+          echo "PROJECT_DIR=$(dirname "$project_file")" >> "$GITHUB_ENV"
+      - name: Build debug APK
+        shell: bash
+        run: gradle -p "$PROJECT_DIR" --no-daemon assembleDebug
+      - name: Publish test APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: green-hell-coach-debug-apk
+          path: original/**/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
