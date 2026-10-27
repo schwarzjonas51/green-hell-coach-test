@@ -32,7 +32,7 @@ jobs:
           echo "PROJECT_DIR=$(dirname "$project_file")" >> "$GITHUB_ENV"
       - name: Build debug APK
         shell: bash
-        run: gradle -p "$PROJECT_DIR" --no-daemon assembleDebug
+        run: gradle -p "$PROJECT_DIR" --no-daemon -Pandroid.useAndroidX=true -Pandroid.enableJetifier=true assembleDebug
       - name: Publish test APK
         uses: actions/upload-artifact@v4
         with:
