@@ -55,7 +55,47 @@ public class MainActivity extends ComponentActivity {
             v.setPadding(20 + insets.getSystemWindowInsetLeft(), 20 + insets.getSystemWindowInsetTop(),
                 20 + insets.getSystemWindowInsetRight(), 12 + insets.getSystemWindowInsetBottom()); return insets;
         });
-        ScrollView scroll = new ScrollView(this); scroll.addView(root); setContentView(scroll);
+        
+ScrollView scroll = new ScrollView(this);
+scroll.addView(root);
+
+LinearLayout menu = new LinearLayout(this);
+menu.setOrientation(LinearLayout.VERTICAL);
+menu.setPadding(30, 60, 30, 30);
+menu.setBackgroundColor(0xFF101114);
+
+TextView title = new TextView(this);
+title.setText("GREEN HELL COACH");
+title.setTextSize(28);
+title.setTextColor(0xFFFF891C);
+menu.addView(title);
+
+LinearLayout screen = new LinearLayout(this);
+screen.setOrientation(LinearLayout.VERTICAL);
+screen.addView(menu);
+setContentView(screen);
+
+String[] modes = {"RENN-DIAGNOSE", "STATISTIK", "RENNKOMMENTATOR"};
+for (String mode : modes) {
+    Button button = new Button(this);
+    button.setText(mode);
+    button.setTextColor(0xFFFFFFFF);
+    button.setBackgroundTintList(
+        android.content.res.ColorStateList.valueOf(0xFFFF891C)
+    );
+    menu.addView(button);
+
+    button.setOnClickListener(v -> {
+        if (mode.equals("RENN-DIAGNOSE")) {
+            screen.removeAllViews();
+            screen.addView(scroll);
+        } else {
+            Toast.makeText(this, mode + " wird noch erweitert",
+                Toast.LENGTH_SHORT).show();
+        }
+    });
+}
+
         label(root, "GREEN HELL COACH", 24);
         label(root, "Handy auf den Bildschirm richten. Wähle nur die eingefrorene LETZTE RUNDENZEIT, ohne Bestzeit oder laufenden Timer.", 15);
         preview = new PreviewView(this); preview.setScaleType(PreviewView.ScaleType.FIT_CENTER);
