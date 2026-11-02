@@ -141,7 +141,14 @@ public class MainActivity extends ComponentActivity {
                     if (destroyed) return;
                     cropPreview.setImageBitmap(crop);
                     int value = LapTracker.parse(result.getText());
-                    recognized.setText("Erkannte Zeit: " + LapTracker.format(value));
+                    String rawText = result.getText().trim();
+recognized.setText(
+    "LIVE-DIAGNOSE\n"
+    + "Texterkennung: "
+    + (rawText.isEmpty() ? "Kein Text erkannt" : rawText)
+    + "\nRundenzeit: " + LapTracker.format(value)
+    + "\nCoaching: " + (listening ? "Aktiv" : "Pausiert")
+);
                     if (!listening) return;
                     String message = tracker.observe(result.getText(), SystemClock.elapsedRealtime());
                     if (message != null) {
