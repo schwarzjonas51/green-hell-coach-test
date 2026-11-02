@@ -1,13 +1,18 @@
+
 name: Green Hell Coach APK
+
 on:
   workflow_dispatch:
   push:
     branches: [main]
     paths:
-      - 'green-hell-coach-android.zip'
+      - 'App/**'
+      - 'app/**'
       - '.github/workflows/android-apk.yml'
+
 permissions:
   contents: read
+
 jobs:
   apk:
     runs-on: ubuntu-latest
@@ -17,25 +22,26 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
+      - uses: android-actions/setup-android@v3
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.10.2'
-      - name: Extract Android project
-        shell: bash
+
+      - name: Prepare Android source
         run: |
-          set -euo pipefail
-          test -f green-hell-coach-android.zip
-          mkdir -p original
-          unzip -q green-hell-coach-android.zip -d original
-          project_file="$(find original -type f -name settings.gradle -print -quit)"
-          test -n "$project_file" || { echo 'Android project not found in ZIP'; exit 1; }
-          echo "PROJECT_DIR=$(dirname "$project_file")" >> "$GITHUB_ENV"
-      - name: Build debug APK
-        shell: bash
-        run: gradle -p "$PROJECT_DIR" --no-daemon -Pandroid.useAndroidX=true -Pandroid.enableJetifier=true assembleDebug
-      - name: Publish test APK
+          mkdir -p app/src/main/java/de/greenhell/coach
+          mkdir -p app/src/main/res
+          cp App/build.gradle app/build.gradle
+          cp App/Src/Main/AndroidManifest.xml app/src/main/AndroidManifest.xml
+          cp App/Src/Main/Java/De/Green_hell/Coach/*.java app/src/main/java/de/greenhell/coach/
+          cp -a App/Src/Main/res/. app/src/main/res/
+
+      - name: Build APK
+        run: gradle --no-daemon assembleDebug
+
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: green-hell-coach-debug-apk
-          path: original/**/build/outputs/apk/debug/*.apk
-          if-no-files-found: error
+          path: app/build/outputs/apk/debug/*.apk
+
